@@ -165,3 +165,4 @@ searchBtn.addEventListener('click', () => {
 });
 
 // TODO: Call the displaySearchHistory function on page load to show saved search history
+displaySearchHistory();
