@@ -33,8 +33,8 @@ function getCoordinates(cityName) {
         // TODO: Handle any errors that occur during the API request or response parsing.
         .catch((err) => {
             alert("Error: " + err.message);
-        })
-    );
+        });
+    
 }
 
 // Fetch the weather data using the coordinates
@@ -45,8 +45,8 @@ function getWeather(lat, lon) {
         // TODO: Convert the API response into a JSON object using .json() to allow handling of the data in JavaScript.
         .then((response) => response.json())
         // TODO: Return the parsed data in the second .then() so that it can be used in the next steps of the promise chain for further processing.
-        .then((data) => console.log(data))
- );
+        .then((data) =>  data);
+ 
 }
 
 getWeather(getCoordinates("dallas"));
@@ -55,12 +55,12 @@ getWeather(getCoordinates("dallas"));
 // TODO: Use the 'Current Weather Data' in the console to complete the displayCurrentWeather method
 function displayCurrentWeather(data) {
     console.log('Current Weather Data', data);
-    const currentWeather = 
-    const city = 
+    const currentWeather =  data.list[0];
+    const city = data.city.name;
     const date = new Date(currentWeather.dt * 1000).toLocaleDateString();
-    const temperature = 
-    const humidity = 
-    const windSpeed = 
+    const temperature = currentWeather.main.temp;
+    const humidity = curretnWeather.main.humidity;
+    const windSpeed = currentWeather.wind.speed;
     const weatherIcon = `https://openweathermap.org/img/wn/${currentWeather.weather[0].icon}@2x.png`;
 
     currentWeatherDisplay.innerHTML = `
@@ -78,11 +78,11 @@ function displayForecast(data) {
     console.log('5-day Weather Data', data);
     forecastDisplay.innerHTML = '';
     for (let i = 0; i < data.list.length; i += 8) { // The API provides data every 3 hours, so skip 8 (24-hour intervals)
-        const forecastItem = 
+        const forecastItem = data.list[i];
         const date = new Date(forecastItem.dt * 1000).toLocaleDateString();
-        const temperature = 
-        const humidity = 
-        const windSpeed = 
+        const temperature = forecastItem.main.temp;
+        const humidity = forecastItem.main.humidity;
+        const windSpeed = forecastItem.wind.speed;
         const weatherIcon = `https://openweathermap.org/img/wn/${forecastItem.weather[0].icon}@2x.png`;
 
         forecastDisplay.innerHTML += `
@@ -101,6 +101,12 @@ function displayForecast(data) {
 function updateSearchHistory(city) {
     let history = JSON.parse(localStorage.getItem('history')) || [];
     // TODO: Check if the city already exists in the search history
+    if (!history.includes(city)) {
+        history.push(city);
+        localStorage.setItem('history', JSON.stringify(history));
+        displaySearchHistory();   
+     }
+
     // If the city does not exist, add it to the history array, 
     // then update the localStorage with the new history and re-render the search history.
 }
@@ -116,7 +122,22 @@ function displaySearchHistory() {
     // and finally displays the current weather and 5-day forecast using displayCurrentWeather() and displayForecast().
     // Append each li element to the searchHistory DOM element to display the list of searched cities.
     history.forEach(city => {
+        const li = document.createElement('li');
+        li.textContent =city;
+        li.addEventListener('click', () => {
+           getCoordinates(city) 
 
+            .then(coords => getWeather(coords.lat, coords.lon))
+            .then(weatherData => {
+            // TODO: Display the current weather
+                displayCurrentWeather(weatherData);
+            // TODO: Display the 5-day forecast
+                displayForescast(weatherData);
+            
+            })
+            .catch(err => alert(err.message));
+        });
+        searchHistory.appendChild(li);
     });
 }
 
@@ -124,19 +145,23 @@ function displaySearchHistory() {
 // TODO: Complete the search button event listener
 searchBtn.addEventListener('click', () => {
     // TODO: Get the city name from the input field
-    
+    const city = cityInput.value.trim()
     // TODO: If the input field is empty, return
-
+    if (city =='') return;
     // Fetch the city coordinates and then get the weather data
     getCoordinates(city)
         // Fetch weather data using the coordinates
         .then(coords => getWeather(coords.lat, coords.lon))
         .then(weatherData => {
             // TODO: Display the current weather
+            displayCurrentWeather(weatherData);
             // TODO: Display the 5-day forecast
+            displayForescast(weatherData);
             // TODO: Update the search history
+            updateSearchHistory(city);
         })
         // TODO: Error handling  
+        .catch(err => alert(err.message));
 });
 
 // TODO: Call the displaySearchHistory function on page load to show saved search history
