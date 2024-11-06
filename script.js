@@ -2,15 +2,15 @@
 // Signup link: https://home.openweathermap.org/users/sign_up
 // Signin link: https://home.openweathermap.org/users/sign_in
 // TODO: Replace 'YOUR_API_KEY' with your actual API key
-const API_KEY = 'YOUR_API_KEY'; 
+const API_KEY = '0311352aecb64940d6a30d7fbe006fae'; 
 
 // Get references to necessary DOM elements (e.g., search input, buttons, weather display areas)
 // TODO: Replace the 'INSERT_ID_HERE' with the appropriate selector for the DOM elements below
-const searchBtn = document.getElementById('INSERT_ID_HERE');
-const cityInput = document.getElementById('INSERT_ID_HERE');
-const currentWeatherDisplay = document.getElementById('INSERT_ID_HERE');
-const forecastDisplay = document.getElementById('INSERT_ID_HERE');
-const searchHistory = document.getElementById('INSERT_ID_HERE');
+const searchBtn = document.getElementById('search-btn');
+const cityInput = document.getElementById('city-input');
+const currentWeatherDisplay = document.getElementById('current-weather');
+const forecastDisplay = document.getElementById('forecast-display');
+const searchHistory = document.getElementById('search-history');
 
 // Fetch the coordinates (latitude and longitude) of a city using the OpenWeatherMap Geocoding API
 // TODO: Complete the getCoordinates method. 
@@ -18,7 +18,7 @@ function getCoordinates(cityName) {
     const geoUrl = `https://api.openweathermap.org/geo/1.0/direct?q=${cityName}&limit=1&appid=${API_KEY}`;
     return fetch(geoUrl)
         // TODO: Convert the API response from a raw format (such as text or blob) into a JavaScript object using the .json() method.
-        .then()
+        .then(respnse => response.json())
         .then(data => {
             console.log('API Response:', data);
             if (data.length === 0) {
@@ -26,12 +26,15 @@ function getCoordinates(cityName) {
             }
             return {
                 // TODO: Extract the latitude and longitude from the first result in the returned data array (check console).
-                lat:
-                lon: 
+                lat: data[0].lat,
+                lon: data[0].lon
             };
         })
         // TODO: Handle any errors that occur during the API request or response parsing.
-        .catch();
+        .catch((err) => {
+            alert("Error: " + err.message);
+        })
+    );
 }
 
 // Fetch the weather data using the coordinates
@@ -40,10 +43,13 @@ function getWeather(lat, lon) {
     const weatherUrl = `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=${API_KEY}&units=metric`;
     return fetch(weatherUrl)
         // TODO: Convert the API response into a JSON object using .json() to allow handling of the data in JavaScript.
-        .then()
+        .then((response) => response.json())
         // TODO: Return the parsed data in the second .then() so that it can be used in the next steps of the promise chain for further processing.
-        .then();
+        .then((data) => console.log(data))
+ );
 }
+
+getWeather(getCoordinates("dallas"));
 
 // Display the current weather data
 // TODO: Use the 'Current Weather Data' in the console to complete the displayCurrentWeather method
